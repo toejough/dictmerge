@@ -39,8 +39,13 @@ This is ugly, I know, and will be improved upon in future versions.
 #what else
 
 I’m planning on adding better semantics for overriding type-specific merge behavior, as well as adding support for merging custom types (which are currently always assumed to be scalar).
-For a full list, see the bugs/tickets.
+For a full list, see the [issues](https://github.com/toejough/pymerge/issues).
 
 #testing
 
-testing is done via py.test, with the tests in test_main.py.
+testing is done via py.test, with the tests in [test_main.py](https://github.com/toejough/pymerge/blob/master/test_main.py).
+
+#installation
+```sh
+pip install --upgrade git+http://github.com/toejough/pymerge
+```
