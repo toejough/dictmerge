@@ -11,7 +11,7 @@ import pymerge
 # [ Main ]
 setup(
     name='pymerge',
-    version='0.1.0',
+    version='0.2.0',
     packages=['pymerge'],
     description=pymerge.__doc__,
     author='toejough',
