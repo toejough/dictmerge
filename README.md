@@ -10,7 +10,7 @@ version 0.2.0 - functional, customizable, extensible.
 
 ##pymerge.Merge
 
-[BaseMerge] with some default merge behaviors:
+[BaseMerge](#basemerge) with some default merge behaviors (set up via ```pymerge.define_default_types``` and ```pymerge.set_default_rules```, which define types and rules for the standard python iterators):
 
 ```python
 from pymerge import Merge
@@ -42,8 +42,6 @@ merge(“foo”, “bar”)  # (“foo”, “bar”)
 # Iterables of different types merge to a tuple
 merge({1, 2}, [3, 4]) # (1, 2, 3, 4)
 ```
-
-See [BaseMerge] for Merge's interface.
 
 #how
 
@@ -82,6 +80,10 @@ merge.set_rule('list', 'default', lambda a, b: a + [b])  # ERROR - commutative d
 
 #what else
 
+##BaseMerge
+```BaseMerge``` is the base upon which ```Merge``` is built.  It has no types defined and no rules defined.
+
+##Non-Default-Merges
 I’m planning on adding a few pre-customized merge classes for non-default behaviors, such as:
 
 - Throw an exception if merged dictionaries contain the same keys (instead of recursing)
