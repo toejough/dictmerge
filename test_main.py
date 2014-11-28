@@ -203,7 +203,7 @@ def test_nested_dictionary():
 
 # [ -Type Overrides- ]
 def test_set_override():
-    merge.create_rule('set', 'set', lambda a, b: a & b)
+    merge.set_rule('set', 'set', lambda a, b: a & b)
     assert merge({1, 2, 3, 4}, {3, 4, 5, 6}) == {3, 4}
 
 
@@ -222,7 +222,7 @@ def test_custom_override():
             yield item
             for item in b:
                 yield item
-    merge.create_rule('generator', 'generator', merge_generators)
+    merge.set_rule('generator', 'generator', merge_generators)
     assert list(merge(gen_a, gen_b)) == [1, 'a', 'b', 2, 3]
 
 
@@ -274,7 +274,7 @@ def test_pedantic_dictionary_merge():
 
 def test_set_intersection():
     merge = Merge()
-    merge.create_rule('set', 'set', mergers.set_intersection_merge)
+    merge.set_rule('set', 'set', mergers.set_intersection_merge)
     # expect sets to combine into a single set
     assert merge({1, 2, 3}, {3, 4, 5}) == {3}
     # expect this to be the same as AND-ing sets

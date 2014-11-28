@@ -30,7 +30,7 @@ class BaseMerge(object):
         '''Create the internal data necessary to function'''
         self._types = OrderedDict()
         self._mergers = {}
-        self.create_rule('default', 'default', mergers.tuple_merge)
+        self.set_rule('default', 'default', mergers.tuple_merge)
 
     def type(self, thing):
         '''Identifies the type of the thing passed in'''
@@ -60,7 +60,7 @@ class BaseMerge(object):
         self._types[key] = predicate
 
     # [ Public API ]
-    def create_rule(self, type_a, type_b, merge_function, commutative=True):
+    def set_rule(self, type_a, type_b, merge_function, commutative=True):
         '''Set a new merge rule based on the types'''
         # Type checking
         if not isinstance(type_a, basestring):
@@ -74,7 +74,7 @@ class BaseMerge(object):
         if commutative:
             self._mergers[(type_b, type_a)] = merge_function
 
-    def delete_rule(self, type_a, type_b, commutative=True):
+    def unset_rule(self, type_a, type_b, commutative=True):
         '''delete the rule'''
         key = (type_a, type_b)
         if key in self._mergers:
@@ -166,13 +166,13 @@ def define_default_types(merge):
 def set_default_rules(merge):
     '''Set the default rules'''
     # Matching Sets
-    merge.create_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=lambda a, b, key: merge(a, b)))
-    merge.create_rule('tuple', 'tuple', mergers.tuple_merge)
-    merge.create_rule('list', 'list', mergers.list_merge)
-    merge.create_rule('set', 'set', mergers.set_merge)
+    merge.set_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=lambda a, b, key: merge(a, b)))
+    merge.set_rule('tuple', 'tuple', mergers.tuple_merge)
+    merge.set_rule('list', 'list', mergers.list_merge)
+    merge.set_rule('set', 'set', mergers.set_merge)
     # Not matching sets
     for a, b in combinations(['default', 'dict', 'tuple', 'list', 'set'], 2):
-        merge.create_rule(a, b, mergers.tuple_merge)
+        merge.set_rule(a, b, mergers.tuple_merge)
 
 
 # [ Main merge ]
@@ -196,10 +196,10 @@ class PedanticMerge(BasePedanticMerge):
         super(PedanticMerge, self).__init__()
         # Need to define these explicitly when using pedantic merge
         self.define_type('default', lambda x: True)
-        self.create_rule('default', 'default', mergers.tuple_merge)
+        self.set_rule('default', 'default', mergers.tuple_merge)
         # Standard defs
         define_default_types(self)
         set_default_rules(self)
         # Override the dictionary merge rule
-        self.create_rule('dict', 'dict', partial(
+        self.set_rule('dict', 'dict', partial(
             mergers.dict_merge, conflict_handler=mergers.pedantic_dict_conflict_handler))
