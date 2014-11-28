@@ -4,13 +4,31 @@ merge arbitrary python objects
 
 #which
 
-version 0.2.0 - functional, customizable, extensible.
+latest version - 0.4.1
+
+#why
+
+Because merging dictionaries in python seems like it should be straightforward, but often it's not.
 
 #what
 
+##in general
+
+pymerge is a tool to merge python objects:
+
+- tuple, tuple -> tuple
+- list, list -> list
+- set, set -> set
+- dict, dict -> dict
+- other, other -> (other, other)
+
+For specifics, see the [Merge](#pymergemerge) section.
+
+pymerge is also customizable and extensible.  You can use it to create a merge function which merges arbitrary types, and teach it arbitrary definitions for those types. 
+
 ##pymerge.Merge
 
-[BaseMerge](#basemerge) with some default merge behaviors (set up via ```pymerge.define_default_types``` and ```pymerge.set_default_rules```, which define types and rules for the standard python iterators):
+[BaseMerge](#pymergebasemerge) with some default merge behaviors (set up via ```pymerge.define_default_types``` and ```pymerge.set_default_rules```, which define types and rules for the standard python iterators):
 
 ```python
 from pymerge import Merge
@@ -43,13 +61,14 @@ merge(“foo”, “bar”)  # (“foo”, “bar”)
 merge({1, 2}, [3, 4]) # (1, 2, 3, 4)
 ```
 
-#how
+##pymerge.BaseMerge
 
-Merge works by:
+```BaseMerge``` works by:
 
 1. Identifying the types of the arguments
 1. Executing a type-pair-specific merge function
 
+##typing
 Type identification is not done by the standard python ```type(foo)```.  Instead, ```pymerge``` uses duck-typing to identify type via an ordered list of ```("type", predicate)``` tuples, where ```predicate``` returns True if the object is of the labeled type, and False otherwise.
 
 ```pymerge``` considers the object to be of the first type whose predicate returns True (which is why ordering is important).  The type API looks like:
@@ -58,16 +77,20 @@ merge.define_type('foo', label x: 'foo' in x)  # defines type 'foo' to be anythi
 merge.type([1,2,3])  # returns "list"
 merge.type('foobar')  # returns "foo"
 merge.type([1, 2, 'foo'])  # returns "foo"
-merge.remove_type('foo')  # undefines the 'foo' type.
+merge.undefine_type('foo')  # undefines the 'foo' type.
 merge.type('foobar')  # returns "default", because now 'foobar' doesn't fit any of the defined types
 merge.list_types()  # lists the defined types (in order of precedence)
 merge.reorder_types(<list of types>)  # reorders the list of type checkers
 ```
 
+###default type
+```BaseMerge``` defines a default type ("default") for anything which doesn't match any of the configured predicates
+
+##merging
 ```pymerge``` then internally looks up the correct merge function for the two types it identified, and merges the arguments.  The merge rule API looks like:
 ```python
 merge.set_rule('foo', 'bar', lambda a, b: "baz")  # if a "foo" type is merged with a "bar" type, the result is "baz"
-merge.delete_rule('foo', 'bar')  # removes that rule
+merge.unset_rule('foo', 'bar')  # removes that rule
 ```
 
 The set/delete rule functions also take a ```commutative``` argument, which defaults to ```True```.  This allows you to define different behaviors for different types:
@@ -77,11 +100,21 @@ merge.set_rule('list', 'default', lambda a, b: raise Exception("I don't want to 
 merge.set_rule('list', 'default', lambda a, b: a + [b])  # ERROR - commutative defalts to true...
 # now this will apply to both "[1, 2, 3], 4" (fine) and "1, [2, 3, 4]" (error)
 ```
+###default merge
+If there is no merge rule set for a pair of types, ```BaseMerge``` will use whatever is configured for the ('default', 'default') pair.
 
 #what else
 
-##BaseMerge
-```BaseMerge``` is the base upon which ```Merge``` is built.  It has no types defined and no rules defined.
+##BasePedanticMerge
+```BasePedanticMerge``` is the base upon which ```PedanticMerge``` is built.  It has no types defined and no rules defined, but has all the API to allow you to do so.  Rather than defining defaults, throws errors if the user has not explicitly defined a type or a merge rule.
+
+##PedanticMerge
+```PedanticMerge``` is a modified ```BasePedanticMerge```.  It has all of the type and merge definitions as ```Merge```, with the exception of the dictionary merge.  Instead of merging values if both dictionaries have the same key, ```PedanticMerge``` checks if the values conflict.  If they do, an exception is thrown.  If they don't, one of the (equivalent) values is used:
+
+```python
+merge({'foo':'FOO'}, {'foo':'BAR'})  # raises pymerge.mergers.KeyConflictError
+merge({'foo':'FOO'}, {'foo':'FOO'})  # returns {'foo':'FOO'}
+```
 
 #testing
 
