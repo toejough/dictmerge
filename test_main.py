@@ -5,7 +5,7 @@
 # [ -Python- ]
 # [ -Third-party- ]
 # [ -Project- ]
-from pymerge import Merge
+from pymerge import Merge, BaseMerge
 
 
 # [ Globals ]
@@ -215,3 +215,13 @@ def test_custom_override():
             yield item
     merge.set_rule('generator', 'generator', merge_generators)
     assert list(merge([1, 2, 3], ['a', 'b'])) == [1, 2, 3, 'a', 'b']
+
+
+# [ -Bugs- ]
+def test_missing_rule():
+    # Expect that without a rule defined, the default merge is to tuple
+    base_merge = BaseMerge()
+    assert base_merge(1, 2) == (1, 2)
+    base_merge.define_type('int', lambda x: isinstance(x, int))
+    assert base_merge(1, 2) == (1, 2)
+

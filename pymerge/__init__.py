@@ -19,6 +19,7 @@ class BaseMerge(object):
         '''Create the internal data necessary to function'''
         self._types = OrderedDict()
         self._mergers = {}
+        self.set_rule('default', 'default', mergers.tuple_merge)
 
     def type(self, thing):
         '''Identifies the type of the thing passed in'''
@@ -34,7 +35,11 @@ class BaseMerge(object):
         '''Call this instance as a function - merge a and b'''
         a_type = self.type(a)
         b_type = self.type(b)
-        return self._mergers[(a_type, b_type)](a, b)
+        try:
+            merge_func = self._mergers[(a_type, b_type)]
+        except KeyError:
+            merge_func = self._mergers[('default', 'default')]
+        return merge_func(a, b)
 
     def __reinsert_type(self, key):
         '''Remove and reinsert the key/item pair at the end of the types list'''
@@ -116,7 +121,6 @@ class BaseMerge(object):
 def define_default_types(merge):
     '''Define the default types'''
     # default - if nothing else, it's default type
-    merge.define_type('default', lambda x: True)
     merge.define_type('list', types.is_list)
     merge.define_type('tuple', types.is_tuple)
     merge.define_type('set', types.is_set)
@@ -126,7 +130,6 @@ def define_default_types(merge):
 def set_default_rules(merge):
     '''Set the default rules'''
     # Matching Sets
-    merge.set_rule('default', 'default', mergers.tuple_merge)
     merge.set_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=merge))
     merge.set_rule('tuple', 'tuple', mergers.tuple_merge)
     merge.set_rule('list', 'list', mergers.list_merge)
