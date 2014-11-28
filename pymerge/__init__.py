@@ -11,7 +11,18 @@ import pymerge.merge_types as merge_types
 import pymerge.mergers as mergers
 
 
-# [ Classes ]
+# [ Exceptions ]
+class MissingTypeError(TypeError):
+    '''for use when no type predicate matches an object'''
+    pass
+
+
+class MissingRuleError(ValueError):
+    '''for use when no matching rule is found for two types'''
+    pass
+
+
+# [ Base Merges ]
 class BaseMerge(object):
     '''Base class for custom merge functions'''
     # [ Private Functions ]
@@ -115,6 +126,33 @@ class BaseMerge(object):
         del self._types[label]
 
 
+class BasePedanticMerge(BaseMerge):
+    '''Base class for pedantic merging'''
+    def type(self, thing):
+        '''Identifies the type of the thing passed in'''
+        thing_type = None
+        for name, test in self._types.items():
+            if test(thing):
+                thing_type = name
+                break
+        if thing_type is None:
+            raise MissingTypeError("No type predicate matched ({})".format(thing))
+        return thing_type
+
+    def __call__(self, a, b):
+        '''Call this instance as a function - merge a and b'''
+        a_type = self.type(a)
+        b_type = self.type(b)
+        try:
+            merge_func = self._mergers[(a_type, b_type)]
+        except KeyError:
+            raise MissingRuleError("No rule defined for types ({}, {}) for objects ({}, {})".format(
+                a_type, b_type, a, b
+            ))
+        return merge_func(a, b)
+
+
+
 # [ Other Helpers ]
 def define_default_types(merge):
     '''Define the default types'''
@@ -128,7 +166,7 @@ def define_default_types(merge):
 def set_default_rules(merge):
     '''Set the default rules'''
     # Matching Sets
-    merge.create_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=merge))
+    merge.create_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=lambda a, b, key: merge(a, b)))
     merge.create_rule('tuple', 'tuple', mergers.tuple_merge)
     merge.create_rule('list', 'list', mergers.list_merge)
     merge.create_rule('set', 'set', mergers.set_merge)
@@ -144,3 +182,18 @@ class Merge(BaseMerge):
         super(Merge, self).__init__()
         define_default_types(self)
         set_default_rules(self)
+
+
+# [ Other merges ]
+class PedanticMerge(BasePedanticMerge):
+    def __init__(self):
+        super(PedanticMerge, self).__init__()
+        # Need to define these explicitly when using pedantic merge
+        self.define_type('default', lambda x: True)
+        self.create_rule('default', 'default', mergers.tuple_merge)
+        # Standard defs
+        define_default_types(self)
+        set_default_rules(self)
+        # Override the dictionary merge rule
+        self.create_rule('dict', 'dict', partial(
+            mergers.dict_merge, conflict_handler=mergers.pedantic_dict_conflict_handler))

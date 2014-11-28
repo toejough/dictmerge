@@ -4,8 +4,10 @@
 # [ Imports ]
 # [ -Python- ]
 # [ -Third-party- ]
+import pytest
 # [ -Project- ]
-from pymerge import Merge, BaseMerge
+from pymerge import Merge, BaseMerge, PedanticMerge
+from pymerge.mergers import KeyConflictError
 
 
 # [ Globals ]
@@ -249,3 +251,21 @@ def test_undefine():
     merge = Merge()
     merge.undefine_type("list")
     assert merge.list_types() == ['dict', 'set', 'tuple']
+
+
+# [ -Non-Default Rules- ]
+def test_pedantic_dictionary_merge():
+    # expect that the merge throws
+    merge = PedanticMerge()
+    a = {
+        'foo': { 1, 2, 3},
+        'bar': 'BAR',
+        'baz': 'BAZ',
+    }
+    b = {
+        'foo': { 2, 3, 4},
+        'bar': ['B', 'A', 'R'],
+        'quux': 'quux'
+    }
+    with pytest.raises(KeyConflictError):
+        merge(a, b)
