@@ -83,15 +83,6 @@ merge.set_rule('list', 'default', lambda a, b: a + [b])  # ERROR - commutative d
 ##BaseMerge
 ```BaseMerge``` is the base upon which ```Merge``` is built.  It has no types defined and no rules defined.
 
-##Non-Default-Merges
-I’m planning on adding a few pre-customized merge classes for non-default behaviors, such as:
-
-- Throw an exception if merged dictionaries contain the same keys (instead of recursing)
-- Do a set intersection instead of a union when merging sets
-- Support merging generators (not default because it's not clear to me what the correct behavior is)
-
-For a full list, see the [issues](https://github.com/toejough/pymerge/issues/4).
-
 #testing
 
 testing is done via py.test, with the tests in [test_main.py](https://github.com/toejough/pymerge/blob/master/test_main.py).
