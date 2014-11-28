@@ -28,6 +28,11 @@ def set_merge(a, b):
     return a | b
 
 
+def set_intersection_merge(a, b):
+    '''Merge the arguments as an intersection of sets'''
+    return a & b
+
+
 def dict_merge(a, b, conflict_handler):
     '''
     dictionary merge
@@ -47,6 +52,7 @@ def dict_merge(a, b, conflict_handler):
     return d
 
 
+# [ Merge Conflict Handlers ]
 def pedantic_dict_conflict_handler(a, b, key):
     '''Throw an error if the values are not the same'''
     # raise in conflict

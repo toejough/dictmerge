@@ -186,6 +186,12 @@ class Merge(BaseMerge):
 
 # [ Other merges ]
 class PedanticMerge(BasePedanticMerge):
+    '''
+    Fail when:
+        - a rule is not defined
+        - a type is not defined
+        - a dictionary merge encounters a key/value conflict
+    '''
     def __init__(self):
         super(PedanticMerge, self).__init__()
         # Need to define these explicitly when using pedantic merge

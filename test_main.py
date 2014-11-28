@@ -8,6 +8,7 @@ import pytest
 # [ -Project- ]
 from pymerge import Merge, BaseMerge, PedanticMerge
 from pymerge.mergers import KeyConflictError
+from  pymerge import mergers
 
 
 # [ Globals ]
@@ -269,3 +270,12 @@ def test_pedantic_dictionary_merge():
     }
     with pytest.raises(KeyConflictError):
         merge(a, b)
+
+
+def test_set_intersection():
+    merge = Merge()
+    merge.create_rule('set', 'set', mergers.set_intersection_merge)
+    # expect sets to combine into a single set
+    assert merge({1, 2, 3}, {3, 4, 5}) == {3}
+    # expect this to be the same as AND-ing sets
+    assert merge({1, 2, 3}, {3, 4, 5}) == {1, 2, 3} & {3, 4, 5}
