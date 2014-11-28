@@ -93,7 +93,7 @@ merge.set_rule('foo', 'bar', lambda a, b: "baz")  # if a "foo" type is merged wi
 merge.unset_rule('foo', 'bar')  # removes that rule
 ```
 
-The set/delete rule functions also take a ```commutative``` argument, which defaults to ```True```.  This allows you to define different behaviors for different types:
+The set/unset rule functions also take a ```commutative``` argument, which defaults to ```True```.  This allows you to define different behaviors for different types:
 ```python
 merge.set_rule('default', 'list', lambda a, b: [a] + b, commutative=False)
 merge.set_rule('list', 'default', lambda a, b: raise Exception("I don't want to do this for you"), commutative=False)
@@ -101,7 +101,7 @@ merge.set_rule('list', 'default', lambda a, b: a + [b])  # ERROR - commutative d
 # now this will apply to both "[1, 2, 3], 4" (fine) and "1, [2, 3, 4]" (error)
 ```
 ###default merge
-If there is no merge rule set for a pair of types, ```BaseMerge``` will use whatever is configured for the ('default', 'default') pair.
+If there is no merge rule set for a pair of types, ```BaseMerge``` will use whatever is configured for the ('default', 'default') pair.  By default, this is defined as the tuple merge.
 
 #what else
 
