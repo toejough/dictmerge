@@ -98,7 +98,6 @@ class BaseMerge(object):
         '''
         # make sure the new order is a list
         new_order = list(new_order)
-        print new_order
         # First, the keys in the list
         for key in new_order:
             if key in self._types:
