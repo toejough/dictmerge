@@ -1,6 +1,11 @@
 '''A library for pymerge'''
 
 
+# [ Imports ]
+# [ -Python- ]
+from types import GeneratorType
+
+
 # [ Type Checkers ]
 def is_tuple(thing):
     '''Check if the thing is a tuple'''
@@ -27,8 +32,8 @@ def tuplify(thing):
     '''Make the thing a tuple if it isn't already'''
     t = thing
     if not is_tuple(t):
-        if not hasattr(t, '__iter__') or is_dict(t):
-            # not iterable, or is a dictionary
+        if not hasattr(t, '__iter__') or is_dict(t) or isinstance(t, GeneratorType):
+            # not iterable, or is a dictionary, or is a Generator
             t = (t,)
         else:
             # not a dictionary, is iterable

@@ -207,14 +207,20 @@ def test_set_override():
 def test_custom_override():
     # test adding support for generators
     import types
+    merge = Merge()
     merge.define_type('generator', lambda x: isinstance(x, types.GeneratorType))
+    def make_generator(x):
+        for item in x:
+            yield item
+    gen_a = make_generator([1, 2, 3])
+    gen_b = make_generator(['a', 'b'])
     def merge_generators(a, b):
         for item in a:
             yield item
-        for item in b:
-            yield item
+            for item in b:
+                yield item
     merge.set_rule('generator', 'generator', merge_generators)
-    assert list(merge([1, 2, 3], ['a', 'b'])) == [1, 2, 3, 'a', 'b']
+    assert list(merge(gen_a, gen_b)) == [1, 'a', 'b', 2, 3]
 
 
 # [ -Bugs- ]
@@ -225,3 +231,13 @@ def test_missing_rule():
     base_merge.define_type('int', lambda x: isinstance(x, int))
     assert base_merge(1, 2) == (1, 2)
 
+
+def test_generator():
+    # Expect that generators are combined with tuple merge
+    def make_generator():
+        x = 0
+        while True:
+            yield x
+            x += 1
+    gen = make_generator()
+    assert merge(gen, gen) == (gen, gen)

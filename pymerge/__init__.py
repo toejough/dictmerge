@@ -7,7 +7,7 @@ from functools import partial
 from collections import OrderedDict
 from itertools import combinations
 # [ -Project- ]
-import pymerge.types as types
+import pymerge.merge_types as merge_types
 import pymerge.mergers as mergers
 
 
@@ -121,10 +121,10 @@ class BaseMerge(object):
 def define_default_types(merge):
     '''Define the default types'''
     # default - if nothing else, it's default type
-    merge.define_type('list', types.is_list)
-    merge.define_type('tuple', types.is_tuple)
-    merge.define_type('set', types.is_set)
-    merge.define_type('dict', types.is_dict)
+    merge.define_type('list', merge_types.is_list)
+    merge.define_type('tuple', merge_types.is_tuple)
+    merge.define_type('set', merge_types.is_set)
+    merge.define_type('dict', merge_types.is_dict)
 
 
 def set_default_rules(merge):

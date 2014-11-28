@@ -3,13 +3,13 @@
 
 # [ Imports ]
 # [ -Project- ]
-import pymerge.types as types
+import pymerge.merge_types as merge_types
 
 
 # [ Type Mergers ]
 def tuple_merge(a, b):
     '''Merge the arguments as tuples'''
-    return types.tuplify(a) + types.tuplify(b)
+    return merge_types.tuplify(a) + merge_types.tuplify(b)
 
 
 def list_merge(a, b):
