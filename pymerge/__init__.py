@@ -19,7 +19,7 @@ class BaseMerge(object):
         '''Create the internal data necessary to function'''
         self._types = OrderedDict()
         self._mergers = {}
-        self.set_rule('default', 'default', mergers.tuple_merge)
+        self.create_rule('default', 'default', mergers.tuple_merge)
 
     def type(self, thing):
         '''Identifies the type of the thing passed in'''
@@ -49,7 +49,7 @@ class BaseMerge(object):
         self._types[key] = predicate
 
     # [ Public API ]
-    def set_rule(self, type_a, type_b, merge_function, commutative=True):
+    def create_rule(self, type_a, type_b, merge_function, commutative=True):
         '''Set a new merge rule based on the types'''
         # Type checking
         if not isinstance(type_a, basestring):
@@ -111,7 +111,7 @@ class BaseMerge(object):
             if key not in new_order:
                 self.__reinsert_type(key)
 
-    def remove_type(self, label):
+    def undefine_type(self, label):
         '''Remove a type definition'''
         del self._types[label]
 
@@ -129,13 +129,13 @@ def define_default_types(merge):
 def set_default_rules(merge):
     '''Set the default rules'''
     # Matching Sets
-    merge.set_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=merge))
-    merge.set_rule('tuple', 'tuple', mergers.tuple_merge)
-    merge.set_rule('list', 'list', mergers.list_merge)
-    merge.set_rule('set', 'set', mergers.set_merge)
+    merge.create_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=merge))
+    merge.create_rule('tuple', 'tuple', mergers.tuple_merge)
+    merge.create_rule('list', 'list', mergers.list_merge)
+    merge.create_rule('set', 'set', mergers.set_merge)
     # Not matching sets
     for a, b in combinations(['default', 'dict', 'tuple', 'list', 'set'], 2):
-        merge.set_rule(a, b, mergers.tuple_merge)
+        merge.create_rule(a, b, mergers.tuple_merge)
 
 
 # [ Main merge ]

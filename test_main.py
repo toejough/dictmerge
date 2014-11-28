@@ -200,7 +200,7 @@ def test_nested_dictionary():
 
 # [ -Type Overrides- ]
 def test_set_override():
-    merge.set_rule('set', 'set', lambda a, b: a & b)
+    merge.create_rule('set', 'set', lambda a, b: a & b)
     assert merge({1, 2, 3, 4}, {3, 4, 5, 6}) == {3, 4}
 
 
@@ -219,7 +219,7 @@ def test_custom_override():
             yield item
             for item in b:
                 yield item
-    merge.set_rule('generator', 'generator', merge_generators)
+    merge.create_rule('generator', 'generator', merge_generators)
     assert list(merge(gen_a, gen_b)) == [1, 'a', 'b', 2, 3]
 
 
@@ -241,3 +241,11 @@ def test_generator():
             x += 1
     gen = make_generator()
     assert merge(gen, gen) == (gen, gen)
+
+
+# [ -Other API- ]
+def test_undefine():
+    # remove a type definition
+    merge = Merge()
+    merge.undefine_type("list")
+    assert merge.list_types() == ['dict', 'set', 'tuple']
