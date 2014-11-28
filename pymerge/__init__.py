@@ -28,7 +28,6 @@ class BaseMerge(object):
             if test(thing):
                 thing_type = name
                 break
-        print "{} - {}".format(thing, thing_type)
         return thing_type
 
     def __call__(self, a, b):
