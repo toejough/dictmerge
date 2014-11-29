@@ -19,10 +19,10 @@ merge arbitrary python objects
 - [installation](#installation)
 - [design notes](#design-notes)
   - [Merge](#merge)
-  - [iterables](#iterables)
-  - [non-iterables and iterables](#non-iterables-and-terables)
-  - [non-iterables](#non-iterables)
-  - [why tuples?](#why-tuples)
+    - [iterables](#iterables)
+    - [non-iterables and iterables](#non-iterables-and-terables)
+    - [non-iterables](#non-iterables)
+    - [why tuples?](#why-tuples)
 
 #which
 
