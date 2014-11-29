@@ -2,6 +2,28 @@
 
 merge arbitrary python objects
 
+- [which](#which)
+- [why](#why)
+- [what](#what)
+  - [in general](#in-general)
+  - [Merge](#pymergemerge)
+  - [BaseMerge](#pymergebasemerge)
+  - [typing](#typing)
+    - [default type](#default-type)
+  - [merging](#merging)
+    - [default merge](#default-merge)
+- [what else](#what-else)
+  - [BasePedanticMerge](#basepedanticmerge)
+  - [PedanticMerge](#pedanticmerge)
+- [testing](#testing)
+- [installation](#installation)
+- [design notes](#design-notes)
+  - [Merge](#merge)
+  - [iterables](#iterables)
+  - [non-iterables and iterables](#non-iterables-and-terables)
+  - [non-iterables](#non-iterables)
+  - [why tuples?](#why-tuples)
+
 #which
 
 latest version - 0.4.1
@@ -124,3 +146,35 @@ testing is done via py.test, with the tests in [test_main.py](https://github.com
 ```sh
 pip install --upgrade git+http://github.com/toejough/pymerge
 ```
+
+#design notes
+
+##Merge
+
+###iterables
+
+Iterables, if of the same type, are merged to that type.  I think it's reasonable to assume that that's what you want.
+
+Iterables of different types are merged to a tuple.  It's not generically possible to know what you want to merge them to.  Take a ```set``` and a ```list```, for example.  It's reasonable to want to merge to a ```set```, a ```list```, the first type (set, list -> set; list, set -> list), or the second type (set, list -> list; list, set -> set).  The best generic solution might be to provide a desired type argument, but at that point you might as well not introduce complication to the API and just wrap the result:
+```python
+merge([1, 2, 3], {3, 4, 5}, 'set')  # {1, 2, 3, 4, 5}
+set(merge([1, 2, 3], {3, 4, 5}))  # {1, 2, 3, 4, 5}
+```
+The solution where you wrap the result is:
+- the same number of keystrokes (counting shift)
+- semantically clearer
+- does not introduce new API
+
+This also avoids the "unhashable type" error in the module entirely, so if you end up with an unhashable type in your tuple, you still have the merged tuple and can decide what you'd like to do with it.
+
+###non-iterables and iterables
+
+Non-iterables and iterables are merged to a tuple, because it's not generically possible to know what you want to merge them to.  This is primarily due to sets, which throw an error if you are adding an unhashable type.  For the ```Merge``` object, I want to avoid throwing errors at you where it's reasonable to do so.  For those that prefer errors, there is ```PedanticMerge```.
+
+###non-iterables
+
+Non-iterables are merged to a tuple, because it's the simplest collection, and it's pythonic (think ```return x, y```).
+
+###why tuples?
+
+All of the non-same-type-iterable merges merge to tuples.  This makes sense for the non-iterable merges, and is done for the iterable merges just to be consistent.
