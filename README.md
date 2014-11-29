@@ -6,15 +6,15 @@ merge arbitrary python objects
 - [why](#why)
 - [what](#what)
   - [in general](#in-general)
-  - [Merge](#pymergemerge)
-  - [BaseMerge](#pymergebasemerge)
+  - [pymerge.Merge](#pymergemerge)
+  - [pymerge.BaseMerge](#pymergebasemerge)
   - [typing](#typing)
     - [default type](#default-type)
   - [merging](#merging)
     - [default merge](#default-merge)
 - [what else](#what-else)
-  - [BasePedanticMerge](#basepedanticmerge)
-  - [PedanticMerge](#pedanticmerge)
+  - [pymerge.BasePedanticMerge](#pymergebasepedanticmerge)
+  - [pymerge.PedanticMerge](#pymergepedanticmerge)
 - [testing](#testing)
 - [installation](#installation)
 - [design notes](#design-notes)
@@ -23,6 +23,11 @@ merge arbitrary python objects
     - [non-iterables and iterables](#non-iterables-and-terables)
     - [non-iterables](#non-iterables)
     - [why tuples?](#why-tuples)
+  - [PedanticMerge](#merge)
+    - [iterables](#iterables)
+    - [non-iterables and iterables](#non-iterables-and-terables)
+    - [non-iterables](#non-iterables)
+    - [why all the errors?](#why-all-the-errors)
 
 #which
 
@@ -80,7 +85,11 @@ merge(1, “hi”)  # (1, “hi”)
 merge(“foo”, “bar”)  # (“foo”, “bar”)
 
 # Iterables of different types merge to a tuple
-merge({1, 2}, [3, 4]) # (1, 2, 3, 4)
+merge({1, 2}, [3, 4])  # (1, 2, 3, 4)
+
+# Iterables and non-iterables merge to a tuple
+merge([1, 2, 3], 4)  # (1, 2, 3, 4)
+merge(1, {1: 2})  # (1, {1:2})
 ```
 
 ##pymerge.BaseMerge
@@ -127,16 +136,40 @@ If there is no merge rule set for a pair of types, ```BaseMerge``` will use what
 
 #what else
 
-##BasePedanticMerge
+##pymerge.BasePedanticMerge
 ```BasePedanticMerge``` is the base upon which ```PedanticMerge``` is built.  It has no types defined and no rules defined, but has all the API to allow you to do so.  Rather than defining defaults, throws errors if the user has not explicitly defined a type or a merge rule.
 
-##PedanticMerge
+##pymerge.PedanticMerge
 ```PedanticMerge``` is a modified ```BasePedanticMerge```.  It has all of the type and merge definitions as ```Merge```, with the exception of the dictionary merge.  Instead of merging values if both dictionaries have the same key, ```PedanticMerge``` checks if the values conflict.  If they do, an exception is thrown.  If they don't, one of the (equivalent) values is used:
 
 ```python
+from pymerge import PedanticMerge
+merge = PedanticMerge()
+
+# Non-dictionary iterables of the same type are merged to that type
+merge(tuple1, tuple2) # tuple1 + tuple2
+merge(list1, list2)  # list1 + list2
+merge(set1, set2)  # set1 | set2
+
+# Dictionaries are a special case
+d = merge(dict1, dict2)
+# d now equals dict1, with any new key/value pairs from dict 2
+# unless there are overlapping keys:
 merge({'foo':'FOO'}, {'foo':'BAR'})  # raises pymerge.mergers.KeyConflictError
 merge({'foo':'FOO'}, {'foo':'FOO'})  # returns {'foo':'FOO'}
+
+# Non-iterables do not have merge types defined, and will raise a MissingTypeError
+merge(1, 2)  # pymerge.MissingTypeError: No type predicate matched (1)
+merge(“foo”, “bar”)  # pymerge.MissingTypeError: No type predicate matched (foo)
+
+# Iterables of different types do not have merge rules defined, and will raise a MissingRuleError
+merge({1, 2}, [3, 4])  # pymerge.MissingRuleError: No rule defined for types (set, list) for objects (set([1, 2]), [3, 4])
+
+# Iterables and non-iterables will raise the MissingTypeError, because non-iterables have no types defined.
+merge([1, 2, 3], 4)  # pymerge.MissingTypeError: No type predicate matched (4)
+merge(1, {1: 2})  # pymerge.MissingTypeError: No type predicate matched (1)
 ```
+
 
 #testing
 
@@ -177,4 +210,25 @@ Non-iterables are merged to a tuple, because it's the simplest collection, and i
 
 ###why tuples?
 
-All of the non-same-type-iterable merges merge to tuples.  This makes sense for the non-iterable merges, and is done for the iterable merges just to be consistent.
+All of the non-same-type-iterable merges merge to tuples.  This makes sense for the non-iterable merges, and is done for the iterable merges just to be consistent.  If you want something more 'correct' and strict, see [PedanticMerge](pymergepedanticmerge) and add your own types and rules.
+
+##PedanticMerge
+
+###iterables
+
+Iterables, if of the same type, are merged to that type.  I think it's reasonable to assume that that's what you want.
+
+Iterables of different types are not merged.  It's not clear what you want, so I've left it up to you to define that for this case.  If you don't define a merge function for the iterables you are merging, an error will be thrown.
+
+###non-iterables and iterables
+
+Non-iterables and iterables are not merged, becuase there are no non-iterable types defined.  Once you define a non-iterable type, you can also define rules for merging that type.
+
+###non-iterables
+
+Non-iterables are not merged, becuase there are no non-iterable types defined.  Once you define a non-iterable type, you can also define rules for merging that type.
+
+###why all the errors?
+
+Anything where it's not totally clear what "merging" means is left up to you to define, and throws an error if you don't.  This is the pedantic merge, and it's pedantic.  If you want something more generic and permissive, see [Merge](#pymergemerge).
+
