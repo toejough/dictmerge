@@ -84,6 +84,11 @@ class BaseMerge(object):
             if key in self._mergers:
                 del self._mergers[key]
 
+    def list_rules(self):
+        '''list the rules which exist'''
+        for types, rule in self._mergers.items():
+            yield types + (rule, )
+
     def define_type(self, label, predicate):
         '''A thing will be considered to be of type <label> if <predicate>(thing)'''
         # first, get the current ordering
@@ -152,7 +157,6 @@ class BasePedanticMerge(BaseMerge):
         return merge_func(a, b)
 
 
-
 # [ Other Helpers ]
 def define_default_types(merge):
     '''Define the default types'''
@@ -163,13 +167,18 @@ def define_default_types(merge):
     merge.define_type('dict', merge_types.is_dict)
 
 
-def set_default_rules(merge):
-    '''Set the default rules'''
+def set_builtin_rules(merge):
+    '''set the built-in rules'''
     # Matching Sets
     merge.set_rule('dict', 'dict', partial(mergers.dict_merge, conflict_handler=lambda a, b, key: merge(a, b)))
     merge.set_rule('tuple', 'tuple', mergers.tuple_merge)
     merge.set_rule('list', 'list', mergers.list_merge)
     merge.set_rule('set', 'set', mergers.set_merge)
+
+
+def set_default_rules(merge):
+    '''Set the default rules'''
+    set_builtin_rules(merge)
     # Not matching sets
     for a, b in combinations(['default', 'dict', 'tuple', 'list', 'set'], 2):
         merge.set_rule(a, b, mergers.tuple_merge)
@@ -194,12 +203,12 @@ class PedanticMerge(BasePedanticMerge):
     '''
     def __init__(self):
         super(PedanticMerge, self).__init__()
-        # Need to define these explicitly when using pedantic merge
-        self.define_type('default', lambda x: True)
-        self.set_rule('default', 'default', mergers.tuple_merge)
+        # remove the default rule
+        self.unset_rule('default', 'default')
         # Standard defs
         define_default_types(self)
-        set_default_rules(self)
+        set_builtin_rules(self)
         # Override the dictionary merge rule
         self.set_rule('dict', 'dict', partial(
             mergers.dict_merge, conflict_handler=mergers.pedantic_dict_conflict_handler))
+

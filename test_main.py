@@ -246,6 +246,13 @@ def test_generator():
     assert merge(gen, gen) == (gen, gen)
 
 
+def test_pedantic_default_rules():
+    # Expect that there are no rules for the default type
+    merge = PedanticMerge()
+    rules = merge.list_rules()
+    for rule in rules:
+        assert 'default' not in rule
+
 # [ -Other API- ]
 def test_undefine():
     # remove a type definition
