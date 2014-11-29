@@ -6,7 +6,7 @@
 # [ -Third-party- ]
 import pytest
 # [ -Project- ]
-from pymerge import Merge, BaseMerge, PedanticMerge
+from pymerge import Merge, BaseMerge, PedanticMerge, BasePedanticMerge
 from pymerge.mergers import KeyConflictError
 from  pymerge import mergers
 
@@ -252,6 +252,15 @@ def test_pedantic_default_rules():
     rules = merge.list_rules()
     for rule in rules:
         assert 'default' not in rule
+
+
+def test_basepedantic_default_rules():
+    # Expect that there are no rules for the default type
+    merge = BasePedanticMerge()
+    rules = merge.list_rules()
+    for rule in rules:
+        assert 'default' not in rule
+
 
 # [ -Other API- ]
 def test_undefine():

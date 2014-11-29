@@ -133,6 +133,11 @@ class BaseMerge(object):
 
 class BasePedanticMerge(BaseMerge):
     '''Base class for pedantic merging'''
+    def __init__(self):
+        super(BasePedanticMerge, self).__init__()
+        # remove the default rule
+        self.unset_rule('default', 'default')
+
     def type(self, thing):
         '''Identifies the type of the thing passed in'''
         thing_type = None
@@ -203,8 +208,6 @@ class PedanticMerge(BasePedanticMerge):
     '''
     def __init__(self):
         super(PedanticMerge, self).__init__()
-        # remove the default rule
-        self.unset_rule('default', 'default')
         # Standard defs
         define_default_types(self)
         set_builtin_rules(self)
