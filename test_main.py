@@ -6,7 +6,7 @@
 # [ -Third-party- ]
 import pytest
 # [ -Project- ]
-from pymerge import merge, KeyConflictError
+from dictmerge import merge, KeyConflictError
 
 
 # [ Globals ]
