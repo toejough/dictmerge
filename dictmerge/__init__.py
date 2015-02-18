@@ -33,6 +33,13 @@ def default_resolver(key, value_1, value_2):
 # [ Core ]
 def merge(d1, d2, resolve=default_resolver):
     '''Merge two dictionaries'''
+    # basic type checking
+    if not isinstance(d1, dict):
+        raise TypeError("d1 must be a dictionary (not a {})".format(type(d1)))
+    if not isinstance(d2, dict):
+        raise TypeError("d2 must be a dictionary (not a {})".format(type(d2)))
+    if not hasattr(resolve, '__call__'):
+        raise TypeError("resolve must be callable");
     # build a new dictionary
     d_new = {}
     # fill it with the items from the first dictionary

@@ -113,3 +113,12 @@ def test_recursive():
         'c': {'carp': 'careen', 3:333, 'III': 'aye aye aye'}
     }
     assert merge(first, second) == combined
+
+def test_wrong_types():
+    '''expect actionable error messages'''
+    with pytest.raises(TypeError):
+        merge(1, dict())
+    with pytest.raises(TypeError):
+        merge(dict(), 2)
+    with pytest.raises(TypeError):
+        merge(dict(), dict(), 1)
