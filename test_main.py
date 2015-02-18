@@ -122,3 +122,8 @@ def test_wrong_types():
         merge(dict(), 2)
     with pytest.raises(TypeError):
         merge(dict(), dict(), 1)
+
+def test_no_resolver():
+    '''expect a KeyConflictError'''
+    with pytest.raises(KeyConflictError):
+        merge(BASE, OVERLAPPING_SAME, None)

@@ -38,7 +38,7 @@ def merge(d1, d2, resolve=default_resolver):
         raise TypeError("d1 must be a dictionary (not a {})".format(type(d1)))
     if not isinstance(d2, dict):
         raise TypeError("d2 must be a dictionary (not a {})".format(type(d2)))
-    if not hasattr(resolve, '__call__'):
+    if not hasattr(resolve, '__call__') and resolve is not None:
         raise TypeError("resolve must be callable");
     # build a new dictionary
     d_new = {}
@@ -52,6 +52,10 @@ def merge(d1, d2, resolve=default_resolver):
             # remove the key
             del d_new[key]
             # resolve the conflict and merge the result
+            if resolve is None:
+                raise KeyConflictError(
+                    "Both dictionaries have the same key {} and no resolver is defined.".format(
+                    key))
             d_result = resolve(key, d1[key], d2[key])
             d_new = merge(d_new, d_result, resolve)
         # otherwise, just add the key/value pair
