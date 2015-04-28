@@ -27,6 +27,7 @@ Merge dictionaries according to the following rules:
 The default resolver function will:
 * resolve any keys whose values match in both dictionaries to a single key/value pair to be added
 * resolve keys whose values are both dictionaries to a recursively merged dictionary
+* throw if there are keys whose values are different
 
 #how
 
@@ -35,8 +36,45 @@ Example:
 from dictmerge import merge
 
 # define dict1, dict2...
+dict1 = {
+  'foo': 'foo-val',
+  'bar': { 1: 'one', 2: 'two' },
+  'baz': 'baz-val'
+}
+dict2 = {
+  'foo': 'foo-val',
+  'bar': { 3: 'three', 4: 'four' },
+  'quux': 'quux-val'
+}
 
 d = merge(dict1, dict2)
+
+assert d == {
+  'foo': 'foo-val',
+  'bar': {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+  },
+  'baz': 'baz-val',
+  'quux': 'quux-val'
+}
+```
+
+Example with differing keys:
+```python
+from dictmerge import merge
+
+# define dict1, dict2...
+dict1 = {
+  'foo': 'foo-val',
+}
+dict2 = {
+  'foo': 'other-val',
+}
+
+d = merge(dict1, dict2)  # throws dictmerge.KeyConflictError
 ```
 
 #testing
