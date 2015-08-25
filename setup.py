@@ -5,17 +5,17 @@
 # [ -Python- ]
 from setuptools import setup
 # [ -Project- ]
-import pymerge
+import dictmerge
 
 
 # [ Main ]
 setup(
-    name='pymerge',
+    name='dictmerge',
     version='0.4.3',
-    packages=['pymerge'],
-    description=pymerge.__doc__,
+    packages=['dictmerge'],
+    description=dictmerge.__doc__,
     author='toejough',
-    url='https://github.com/toejough/pymerge',
+    url='https://github.com/toejough/dictmerge',
     license='MIT'
 )
 

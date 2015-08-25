@@ -1,4 +1,4 @@
-'''Tests for pymerge'''
+'''Tests for dictmerge'''
 
 
 # [ Imports ]
