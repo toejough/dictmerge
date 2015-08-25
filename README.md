@@ -11,7 +11,7 @@ merge python dictionaries
 
 #which
 
-latest version - 0.5.0
+latest version - 0.7.1
 
 #why
 
